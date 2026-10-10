@@ -16,7 +16,7 @@ TypeScript 7 (RU13). The rune globals come from the svelte types (tsconfig
 """
 
 load("@aspect_rules_js//npm:defs.bzl", "npm_package")
-load("@aspect_rules_ts//ts:defs.bzl", "ts_project")
+load("@aspect_rules_ts//ts:defs.bzl", "ts_config", "ts_project")
 load("@tummycrypt_tinyland_composables_npm//:defs.bzl", "npm_link_all_packages")
 load("@tummycrypt_tinyland_composables_npm//:vitest/package_json.bzl", vitest_bin = "bin")
 
@@ -122,6 +122,30 @@ ts_project(
     validate = False,
     deps = [":node_modules/svelte"],
     visibility = ["//visibility:public"],
+)
+
+# Typecheck of the tests together with src (no emit). Tests run in Node with
+# happy-dom globals, so they see both the DOM and @types/node declarations.
+ts_config(
+    name = "tsconfig_test",
+    src = "tsconfig.test.json",
+    deps = ["tsconfig.json"],
+)
+
+ts_project(
+    name = "typecheck_tests",
+    srcs = glob(["src/**/*.ts", "tests/**/*.ts"]) + ["package.json"],
+    declaration = False,
+    no_emit = True,
+    tsconfig = ":tsconfig_test",
+    transpiler = "tsc",
+    validate = False,
+    deps = [
+        ":node_modules/@types/node",
+        ":node_modules/happy-dom",
+        ":node_modules/svelte",
+        ":node_modules/vitest",
+    ],
 )
 
 # =============================================================================
