@@ -8,6 +8,10 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
+// Tests run in Node with happy-dom globals: lib.dom types setTimeout as number,
+// @types/node as Timeout, and the overload chosen depends on the callback.
+type TimerId = ReturnType<typeof setTimeout> | number;
+
 describe('useLifecycle - timer cleanup', () => {
 	beforeEach(() => {
 		vi.useFakeTimers();
@@ -132,7 +136,7 @@ describe('useLifecycle - debounce logic', () => {
 		const fn = vi.fn();
 
 		
-		let timeoutId: ReturnType<typeof setTimeout> | null = null;
+		let timeoutId: TimerId | null = null;
 		const debounced = (...args: any[]) => {
 			if (timeoutId !== null) clearTimeout(timeoutId);
 			timeoutId = setTimeout(() => {
@@ -157,7 +161,7 @@ describe('useLifecycle - debounce logic', () => {
 
 	it('should allow cancel of debounced function', () => {
 		const fn = vi.fn();
-		let timeoutId: ReturnType<typeof setTimeout> | null = null;
+		let timeoutId: TimerId | null = null;
 
 		const debounced = () => {
 			if (timeoutId !== null) clearTimeout(timeoutId);

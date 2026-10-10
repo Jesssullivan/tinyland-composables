@@ -7,6 +7,10 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
+// Tests run in Node with happy-dom globals: lib.dom types setTimeout as number,
+// @types/node as Timeout, and the overload chosen depends on the callback.
+type TimerId = ReturnType<typeof setTimeout> | number;
+
 describe('Editor Queue - debounce behavior', () => {
 	beforeEach(() => {
 		vi.useFakeTimers();
@@ -23,7 +27,7 @@ describe('Editor Queue - debounce behavior', () => {
 
 	it('should debounce operations by type', async () => {
 		const DEBOUNCE_MS = 1500;
-		const debounceTimers = new Map<string, ReturnType<typeof setTimeout>>();
+		const debounceTimers = new Map<string, TimerId>();
 		const queue: Array<{ type: string; execute: () => Promise<void> }> = [];
 
 		function enqueue(
@@ -68,7 +72,7 @@ describe('Editor Queue - debounce behavior', () => {
 	});
 
 	it('should skip debounce when explicitly disabled', () => {
-		const debounceTimers = new Map<string, ReturnType<typeof setTimeout>>();
+		const debounceTimers = new Map<string, TimerId>();
 		const queue: Array<{ type: string }> = [];
 
 		function enqueue(
@@ -203,7 +207,7 @@ describe('Editor Queue - cancel operations', () => {
 	it('should cancel all operations and clear debounce timers', () => {
 		vi.useFakeTimers();
 
-		const debounceTimers = new Map<string, ReturnType<typeof setTimeout>>();
+		const debounceTimers = new Map<string, TimerId>();
 		const callback = vi.fn();
 
 		debounceTimers.set('autosave', setTimeout(callback, 1500));
