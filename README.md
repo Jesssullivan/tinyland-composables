@@ -32,6 +32,8 @@ pnpm install
 pnpm typecheck   # tsc 7.0.2 --noEmit
 pnpm test        # vitest 5
 pnpm build       # tsc -> dist/
+# Bazel: CI (.github/workflows/ci.yml) runs //:pkg and //:test.
+# A local run is local, non-qualifying. .bazelrc stops its server after 120 s idle.
 bazel build //:pkg && bazel test //...
 ```
 
